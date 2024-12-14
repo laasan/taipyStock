@@ -5,7 +5,12 @@ from taipy import Config
 
 # create page
 with tgb.Page() as page:
-    tgb.text("my beautiful application goes here!")
+    with tgb.part("text-center"):
+        tgb.image("images/icons/logo.png", width="10vw")
+        tgb.text(
+            "Stocker",
+            mode="md"
+        )
 
 if __name__ == "__main__":
     gui = tp.Gui(page)
