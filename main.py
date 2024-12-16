@@ -61,25 +61,25 @@ with tgb.Page() as page:
                     "images/icons/id-card.png",
                     width="3vw"
                 )
-                tgb.text(f"{company}", mode="md")
+                tgb.text("{company}")
 
                 tgb.image(
                     "images/icons/lin.png",
                     width="3vw"
                 )
-                tgb.text(f"{lin_pred}", mode="md")
+                tgb.text("{lin_pred}")
 
                 tgb.image(
                     "images/icons/knn.png",
                     width="3vw"
                 )
-                tgb.text(f"{knn_pred}", mode="md")
+                tgb.text("{knn_pred}")
 
                 tgb.image(
                     "images/icons/rnn.png",
                     width="3vw"
                 )
-                tgb.text(f"{rnn_pred}", mode="md")
+                tgb.text("{rnn_pred}")
 
 if __name__ == "__main__":
     gui = tp.Gui(page)
