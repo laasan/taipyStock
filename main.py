@@ -17,8 +17,8 @@ dates = [
     datetime.date(2024, 1, 1)
 ]
 
-country = "USA"
-company = "Gekko&Co"
+country = "Canada"
+company = "LULU"
 
 lin_pred = 0
 knn_pred = 0
