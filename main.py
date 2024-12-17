@@ -8,6 +8,7 @@ import pandas as pd
 stock_data = pd.read_csv("data/sp500_stocks.csv")
 company_data = pd.read_csv("data/sp500_companies.csv")
 country_names = company_data["Country"].unique().tolist()
+country_names = [(name, Icon("images/flags/" + name + ".png", name)) for name in country_names]
 company_names = company_data[
                     ["Symbol", "Shortname"]
                 ].sort_values("Shortname").values.tolist()
@@ -44,14 +45,16 @@ with tgb.Page() as page:
                 class_name="fullwidth",
                 value="{country}",
                 lov="{country_names}",
-                dropdown=True
+                dropdown=True,
+                value_by_id=True
             )
             tgb.selector(
                 label="company",
                 class_name="fullwidth",
                 value="{company}",
                 lov="{company_names}",
-                dropdown=True
+                dropdown=True,
+                value_by_id=True
             )
 
         tgb.chart()
@@ -80,6 +83,14 @@ with tgb.Page() as page:
                     width="3vw"
                 )
                 tgb.text("{rnn_pred}")
+
+
+def on_change(state, name, value):
+    if name == "country":
+        print(name, value)
+    if name == "company":
+        print(name, value)
+
 
 if __name__ == "__main__":
     gui = tp.Gui(page)
