@@ -84,15 +84,40 @@ with tgb.Page() as page:
                 )
                 tgb.text("{rnn_pred}")
 
+def build_company_names(country):
+    company_names = company_data[
+        ["Symbol", "Shortname"]][
+            company_data["Country"] == country
+        ].sort_values("Shortname").values.tolist()
+    return company_names
+
+country_cfg = Config.configure_data_node(id="country")
+company_names_cfg = Config.configure_data_node(id="company_names")
+build_company_names_cfg = Config.configure_task(
+    input=country_cfg,
+    output=company_names_cfg,
+    function=build_company_names,
+    id="build_company_names",
+    skippable=True
+    )
+scenario_cfg = Config.configure_scenario(
+    task_configs=build_company_names_cfg,
+    id="scenario"
+    )
 
 def on_change(state, name, value):
     if name == "country":
         print(name, value)
+        state.scenario.country.write(state.country)
+        state.scenario.submit(wait=True)
+        state.company_names = state.scenario.company_names.read()
     if name == "company":
         print(name, value)
 
 
 if __name__ == "__main__":
+    tp.Orchestrator().run()
+    scenario = tp.create_scenario(scenario_cfg)
     gui = tp.Gui(page)
     gui.run(title = "Data Sceince Dashboard",
             use_reloader=True)
