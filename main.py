@@ -16,8 +16,8 @@ company_names = company_data[
                 ].sort_values("Shortname").values.tolist()
 
 dates = [
-    datetime.date(2023, 1, 1),
-    datetime.date(2024, 1, 1)
+    stock_data["Date"].min(),
+    stock_data["Date"].max()
 ]
 
 country = "Canada"
@@ -65,26 +65,20 @@ with tgb.Page() as page:
             with tgb.layout("4 72 4 4 4 4 4 4"):
                 tgb.image(
                     "images/icons/id-card.png",
-                    width="3vw"
-                )
-                tgb.text("{company}")
-
+                    width="3vw")
+                tgb.text("{company[-1]}")
                 tgb.image(
                     "images/icons/lin.png",
-                    width="3vw"
-                )
+                    width="3vw")
                 tgb.text("{lin_pred}")
-
                 tgb.image(
                     "images/icons/knn.png",
-                    width="3vw"
-                )
+                    width="3vw")
                 tgb.text("{knn_pred}")
 
                 tgb.image(
                     "images/icons/rnn.png",
-                    width="3vw"
-                )
+                    width="3vw")
                 tgb.text("{rnn_pred}")
 
 
@@ -170,7 +164,7 @@ def on_change(state, name, value):
         state.scenario.country.write(state.country)
         state.scenario.submit(wait=True)
         state.company_names = state.scenario.company_names.read()
-    if name == "company":
+    if name == "company" or name == "dates":
         print(name, value)
         state.scenario.dates.write(state.dates)
         state.scenario.company.write(state.company)
