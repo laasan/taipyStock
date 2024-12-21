@@ -21,7 +21,7 @@ dates = [
 ]
 
 country = "Canada"
-company = "LULU"
+company = ["LULU"]
 
 lin_pred = 0
 knn_pred = 0
@@ -56,7 +56,8 @@ with tgb.Page() as page:
                 value="{company}",
                 lov="{company_names}",
                 dropdown=True,
-                value_by_id=True
+                value_by_id=True,
+                multiple=True
             )
 
         tgb.chart(figure="{figure}")
@@ -96,24 +97,36 @@ def build_company_names(country):
 
 
 def build_graph_data(dates, company):
-    gr_data = stock_data[["Date", "Adj Close"]][
-        (stock_data["Symbol"] == company) &
+    tmp_data = stock_data[["Date", "Adj Close", "Symbol"]][
+        # (stock_data["Symbol"] == company) &
         (stock_data["Date"] > str(dates[0])) &
         (stock_data["Date"] < str(dates[1]))  # сравнивать строки?
     ]
+    gr_data = pd.DataFrame()
+    gr_data["Date"] = tmp_data["Date"].unique()
 
-    gr_data = gr_data.rename(columns={"Adj Close": company})
+    for c in company:
+        gr_data[c] = tmp_data["Adj Close"][
+            tmp_data["Symbol"] == c
+        ].values
+
+    # gr_data = gr_data.rename(columns={"Adj Close": company})
     return gr_data
 
 
 def display_graph(gr_data):
     fig = go.Figure()
-    fig.add_trace(go.Scatter(
-        x=gr_data["Date"],
-        y=gr_data[gr_data.columns[-1]],
-        name=gr_data.columns[-1],
-        showlegend=True
-        ))
+    symbols = gr_data.columns[1:]
+
+    for s in symbols:
+        fig.add_trace(go.Scatter(
+            x=gr_data["Date"],
+            # y=gr_data[gr_data.columns[-1]],
+            y=gr_data[s],
+            # name=gr_data.columns[-1],
+            name=s,
+            showlegend=True
+            ))
     fig.update_layout(
         xaxis_title="Date",
         yaxis_title="Stock Value"
