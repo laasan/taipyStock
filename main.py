@@ -2,7 +2,6 @@ import taipy as tp
 import taipy.gui.builder as tgb
 from taipy.gui import Icon
 from taipy import Config
-import datetime
 import pandas as pd
 import plotly.graph_objects as go
 
@@ -15,11 +14,7 @@ company_names = company_data[
                     ["Symbol", "Shortname"]
                 ].sort_values("Shortname").values.tolist()
 
-dates = [
-    stock_data["Date"].min(),
-    stock_data["Date"].max()
-]
-
+dates = [stock_data["Date"].min(), stock_data["Date"].max()]
 country = "Canada"
 company = ["LULU"]
 
@@ -35,11 +30,7 @@ with tgb.Page() as page:
     with tgb.part("text-center"):
         tgb.image("images/icons/logo.png", width="10vw")
         tgb.text("Stocker", mode="md")
-        tgb.date_range(
-            "{dates}",
-            label_start="Start Date",
-            label_end="End Date"
-        )
+        tgb.date_range("{dates}", label_start="Start Date", label_end="End Date")
 
         with tgb.layout("20 80"):
             tgb.selector(
@@ -63,28 +54,21 @@ with tgb.Page() as page:
         tgb.chart(figure="{figure}")
         with tgb.part("text-left"):
             with tgb.layout("4 72 4 4 4 4 4 4"):
-                tgb.image(
-                    "images/icons/id-card.png",
-                    width="3vw")
-                tgb.text("{company[-1]}")
-                tgb.image(
-                    "images/icons/lin.png",
-                    width="3vw")
+                tgb.image("images/icons/id-card.png", width="3vw")
+                tgb.text("{company[-1]} | {company_data['Shortname'][company_data['Symbol'] == company[-1]].values[0]}")
+
+                tgb.image("images/icons/lin.png", width="3vw")
                 tgb.text("{lin_pred}")
-                tgb.image(
-                    "images/icons/knn.png",
-                    width="3vw")
+
+                tgb.image("images/icons/knn.png", width="3vw")
                 tgb.text("{knn_pred}")
 
-                tgb.image(
-                    "images/icons/rnn.png",
-                    width="3vw")
+                tgb.image("images/icons/rnn.png", width="3vw")
                 tgb.text("{rnn_pred}")
 
 
 def build_company_names(country):
-    comp_names = company_data[
-        ["Symbol", "Shortname"]][
+    comp_names = company_data[["Symbol", "Shortname"]][
             company_data["Country"] == country
         ].sort_values("Shortname").values.tolist()
     return comp_names
@@ -92,7 +76,6 @@ def build_company_names(country):
 
 def build_graph_data(dates, company):
     tmp_data = stock_data[["Date", "Adj Close", "Symbol"]][
-        # (stock_data["Symbol"] == company) &
         (stock_data["Date"] > str(dates[0])) &
         (stock_data["Date"] < str(dates[1]))  # сравнивать строки?
     ]
@@ -100,11 +83,7 @@ def build_graph_data(dates, company):
     gr_data["Date"] = tmp_data["Date"].unique()
 
     for c in company:
-        gr_data[c] = tmp_data["Adj Close"][
-            tmp_data["Symbol"] == c
-        ].values
-
-    # gr_data = gr_data.rename(columns={"Adj Close": company})
+        gr_data[c] = tmp_data["Adj Close"][tmp_data["Symbol"] == c].values
     return gr_data
 
 
@@ -115,16 +94,12 @@ def display_graph(gr_data):
     for s in symbols:
         fig.add_trace(go.Scatter(
             x=gr_data["Date"],
-            # y=gr_data[gr_data.columns[-1]],
             y=gr_data[s],
-            # name=gr_data.columns[-1],
             name=s,
-            showlegend=True
-            ))
+            showlegend=True))
     fig.update_layout(
         xaxis_title="Date",
-        yaxis_title="Stock Value"
-    )
+        yaxis_title="Stock Value")
     return fig
 
 
@@ -156,6 +131,15 @@ build_company_names_cfg = Config.configure_task(
 scenario_cfg = Config.configure_scenario(
     task_configs=[build_company_names_cfg, build_graph_data_cfg],
     id="scenario")
+
+
+def on_init(state, name, value):
+    state.scenario.country.write(state.country)
+    state.scenario.dates.write(state.dates)
+    state.scenario.company.write(state.company)
+    state.scenario.submit(wait=True)
+    state.graph_data = state.scenario.graph_data.read()
+    state.company_names = state.scenario.company_names.read()
 
 
 def on_change(state, name, value):
